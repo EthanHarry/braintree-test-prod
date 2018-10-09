@@ -1,0 +1,1026 @@
+"Configuration for BANK PaymentMethod ."
+type BankConfiguration {
+  "Whether or not to display a PayPal branded experience on the client for the payment method."
+  isPayPalBranded: Boolean
+}
+
+"Configuration for PAYPAL_WALLET PaymentMethod."
+type PayPalWalletConfiguration {
+  "Whether or not to display a PayPal branded experience on the client for the payment method."
+  isPayPalBranded: Boolean
+}
+
+"Configuration for pAYpAL_CREDIT PaymentMethod."
+type PayPalCreditConfiguration {
+  "Whether or not to display a PayPal branded experience on the client for the payment method."
+  isPayPalBranded: Boolean
+}
+
+"Top level output field from creating a transfer."
+type CreatePayoutsTransferPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "Output fields for a transfer object."
+  payoutsTransfer: PayoutsTransfer
+}
+
+"Output fields for a transfer node."
+type PayoutsTransfer implements Node {
+  "Unique identifier of the transfer."
+  id: ID!
+
+  "Amount transferred."
+  amount: Amount
+
+  "Currency code for the amount in the transfer."
+  currencyCode: CurrencyCodeAlpha
+
+  "Source payment method of the transfer."
+  source: PayoutsPaymentMethod
+
+  "Destination payment method of the transfer."
+  destination: PayoutsPaymentMethod
+
+  "Status of the transfer."
+  status: PayoutsStatus
+
+  "Date and time when the transfer was created."
+  createdAt: Timestamp
+
+  "Response from the processor for this transfer."
+  processorResponse: ProcessorResponse
+}
+
+"Output fields for a balance change event."
+type PayoutsBalanceEvent {
+  "Unique identifier of the event."
+  id: ID!
+
+  "Amount changed."
+  amount: Amount
+
+  "Currency code for the amount in the the event."
+  currencyCode: CurrencyCodeAlpha
+
+  "Status of the balance change event."
+  status: PayoutsStatus
+
+  "Date and time when the balance change event was created."
+  createdAt: Timestamp
+}
+
+"Response details from processor."
+type ProcessorResponse {
+  "Code for decline reason."
+  declineReason: String
+
+  "Whether this transfer was hard declined."
+  isHardDecline: Boolean
+
+  "Processor type."
+  type: ProcessorType
+}
+
+"Top level output field from creating a balance."
+type CreatePayoutsBalancePayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "Output fields for a balance object."
+  payoutsBalance: PayoutsBalance
+}
+
+"Top level output fields for updating a balance."
+type UpdatePayoutsBalancePayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "Output fields for a balance object."
+  payoutsBalance: PayoutsBalance
+}
+
+"Output fields for a balance node."
+type PayoutsBalance implements Node {
+  "Unique identifier of the balance."
+  id: ID!
+
+  "Available amount in the balance."
+  available: Amount
+
+  "Currency code for the amounts in the balance."
+  currencyCode: CurrencyCodeAlpha
+
+  "Pending amount in the balance."
+  pending: Amount
+
+  "Balance change events associated with this balance."
+  events(first: Int, after: String): PayoutsBalanceEventsConnection
+
+  "Number of seconds a deposit will be held after settlement for the balance."
+  depositHoldDelaySeconds: Int
+
+  "An email will be sent when balance falls below this threshold."
+  lowBalanceThreshold: Amount
+}
+
+"Top level field to represent connection from a balance to a balance change event."
+type PayoutsBalanceEventsConnection {
+  "Pagination information."
+  pageInfo: PageInfo!
+
+  "Edges that represent connections."
+  edges: [PayoutsBalanceEventEdge]
+}
+
+"A Relay edge that represents a balance to balance change event connection."
+type PayoutsBalanceEventEdge {
+  "Relay compliant cursor."
+  cursor: String!
+  "Output fields for a balance change object."
+  node: PayoutsBalanceEvent
+}
+
+"Top level object that represents pagination information."
+type PageInfo {
+  "Field to indicate if more edges exist after the requested edges."
+  hasNextPage: Boolean!
+
+  "Field to indicate if more edges exist before the requested edges."
+  hasPreviousPage: Boolean!
+}
+
+"Top level fields from the creation of a payoutsDeposit."
+type CreatePayoutsDepositPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "Output fields for a payouts deposit."
+  payoutsDeposit: PayoutsDeposit!
+}
+
+"Output fields for a payoutsDeposit."
+type PayoutsDeposit implements Node {
+  "Identifier."
+  id: ID!
+
+  "Status of the payouts deposit."
+  status: PayoutsStatus
+
+  "Currency the amount was deposited in."
+  currencyCode: CurrencyCodeAlpha
+
+  "Amount deposited."
+  amount: Amount
+
+  "Date and time when the deposit was created."
+  createdAt: Timestamp
+
+  "Source payment method for this deposit."
+  source: PayoutsPaymentMethod
+
+  "Destination payment method for this deposit."
+  destination: PayoutsPaymentMethod
+}
+
+"Payment methods that can be used in Payouts."
+type PayoutsPaymentMethod implements Node {
+    "Unique identifier for the payment method."
+    id: ID!
+
+    "Type of this payment method."
+    type: PayoutsPaymentMethodType
+}
+
+":nodoc:"
+type User implements Node {
+  "Unique identifier of the user."
+  id: ID!
+
+  "Email address."
+  email: String
+
+  "Current status."
+  status: UserStatus
+
+  "First and Last name."
+  name: String
+
+  "Associated roles."
+  roles: [Role]
+
+  "Merchant associated with user."
+  merchant: Merchant
+}
+
+"Groups of rights assigned to User."
+type Role implements Node {
+  "Unique identifier."
+  id: ID!
+
+  "Human readable name."
+  name: String
+
+  "Whether the role grants account admin status."
+  isAccountAdmin: Boolean
+
+  "Right names associated with role."
+  rights: [String]
+}
+
+":nodoc:"
+type Merchant implements Node {
+  "Unique identifier."
+  id: ID!
+
+  "Current status of Merchant."
+  status: String
+
+  "Company name of the Merchant."
+  companyName: String
+
+  "Merchant's main website."
+  website: String
+
+  "Merchant's timezone."
+  timezone: String
+
+  "Options, settings, and data related to the Payouts product."
+  payouts: Payouts
+
+  "Any payment method from the merchant's vault."
+  paymentMethodFromId(id: ID!): PaymentMethod
+}
+
+"Options, settings, and data related to the Payouts product."
+type Payouts {
+  "Merchant's default Payouts balance."
+  defaultBalance: PayoutsBalance
+}
+
+"Top-level fields returned from a created client token."
+type CreateClientTokenPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "A Base64 encoded string used to initialize client SDKs."
+  clientToken: String
+}
+
+"Top-level fields returned from client configuration query."
+type ClientConfiguration {
+  "URL to send analytics."
+  analyticsUrl: String @deprecated(reason: "This field is included for supporting SDKs that send analytics.")
+
+  "Configuration for Apple Pay on iOS."
+  applePay: ApplePayConfiguration
+
+  "Configuration for Apple Pay on the web."
+  applePayWeb: ApplePayWebConfiguration
+
+  "A url pointing to the base path of Braintree's web pages used for various browser switches and popups."
+  assetsUrl: String
+
+  "A url pointing to the base path of Braintree's client API for clients."
+  clientApiUrl: String @deprecated(reason: "This field is included for supporting legacy clients.")
+
+  "A list of ClientFeatures a Merchant supports."
+  supportedFeatures: [ClientFeature] @deprecated(reason: "This field is included for supporting legacy clients.")
+
+  "Returns PayPal Merchant Configuration."
+  paypalMerchantConfiguration(merchantId: ID, locale: String = "US"): PayPalMerchantConfiguration
+
+  ":nodoc:"
+  braintreeApi: BraintreeApiConfiguration
+
+  "Configuration for credit card tokenization."
+  creditCard: CreditCardConfiguration
+
+  "The enum of the current environment."
+  environment: ClientConfigurationEnvironment
+
+  "Configuration for GooglePay on Android and the web."
+  googlePay: GooglePayConfiguration
+
+  "Configuration for iDeal."
+  ideal: IDealConfiguration
+
+  "Configuration for Kont fraud tools."
+  kount: KountConfiguration
+
+  "Configuration for Masterpass."
+  masterpass: MasterpassConfiguration
+
+  "The current merchant id based on the authentication used."
+  merchantId: String
+
+  "Configuration for PayPal."
+  paypal: PayPalConfiguration
+
+  "Configuration for Samsung Pay."
+  samsungPay: SamsungPayConfiguration
+
+  "Configuration for UnionPay cards."
+  unionPay: UnionPayConfiguration
+
+  "Configuration for US bank account processing."
+  usBankAccount: USBankAccountConfiguration
+
+  "Configuration for Pay with Venmo."
+  venmo: VenmoConfiguration
+
+  "Configuration for Visa Checkout."
+  visaCheckout: VisaCheckoutConfiguration
+}
+
+"Configuration for PayPal Merchant using Payments SDK."
+type PayPalMerchantConfiguration {
+  "URL to validate a customer's payment method."
+  validatePaymentMethodUrl: String
+
+  "The configuration to accept credit cards via Payments SDK."
+  creditCard: CreditCardConfiguration
+
+  "The configuration to accept bank payments via Payments SDK."
+  bank: BankConfiguration
+
+  "The configuration to accept Paypal Wallet via Payments SDK."
+  paypalWallet: PayPalWalletConfiguration
+
+  "The configuration to offer PayPal Credit via Payments SDK."
+  paypalCredit: PayPalCreditConfiguration
+}
+
+"Top level fields returned for a report query."
+type Report {
+  "Top level fields returned in the transaction level fee report query."
+  transactionLevelFees(date: Date!, merchantAccountId: ID): TransactionLevelFeeReport
+}
+
+"Transaction level fee report."
+type TransactionLevelFeeReport {
+  "The url of the report."
+  url: String
+}
+
+"Configuration for Apple Pay on iOS."
+type ApplePayConfiguration {
+  "The environment being used for Apple Pay."
+  status: ApplePayStatus
+
+  "The Apple Pay country code for the current merchant."
+  countryCode: CountryCodeAlpha2
+
+  "The Apple Pay currency ISO code for the current merchant."
+  currencyCode: CurrencyCodeAlpha
+
+  "The merchant identifier that must be supplied when making an Apple Pay request."
+  merchantIdentifier: String
+
+  "A list of card brands supported for Apple Pay by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+}
+
+"Configuration for Apple Pay on web."
+type ApplePayWebConfiguration {
+  "The Apple Pay country code for the current merchant."
+  countryCode: CountryCodeAlpha2
+
+  "The Apple Pay currency ISO code for the current merchant."
+  currencyCode: CurrencyCodeAlpha
+
+  "The merchant identifier that must be supplied when making an Apple Pay request."
+  merchantIdentifier: String
+
+  "A list of card brands supported for Apple Pay by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+}
+
+":nodoc:"
+type BraintreeApiConfiguration {
+  ":nodoc:"
+  url: String
+
+  ":nodoc:"
+  accessToken: String
+}
+
+"Configuration for credit card tokenization."
+type CreditCardConfiguration {
+  "A list of card brands supported for credit card processing by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+
+  "A list of challenges that are required by the current merchant to process a given credit card."
+  challenges: [Challenge]
+
+  "True if the current merchant supports 3D Secure."
+  threeDSecureEnabled: Boolean
+
+  "Whether or not to display a PayPal branded experience on the client for the payment method."
+  isPayPalBranded: Boolean
+}
+
+"Configuration for Google Pay on Android and the web."
+type GooglePayConfiguration {
+  "A string used to identify the merchant to the end user."
+  displayName: String
+
+  "The environment being used for Google Pay."
+  environment: GooglePayEnvironment
+
+  ":nodoc:"
+  googleAuthorization: String @deprecated(reason: "This field is included for supporting legacy clients.")
+
+  "A list of card brands supported for Google Pay by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+}
+
+"Configuration for iDeal."
+type IDealConfiguration {
+  "The route id used to process an iDeal payment."
+  routeId: String
+
+  "A url used to redirect the user to the banks web page."
+  assetsUrl: String
+}
+
+"Configuration for Kount fraud tools."
+type KountConfiguration {
+  "The Kount merchant id used to identify the fraud data collection request."
+  merchantId: String
+}
+
+"Configuration for Masterpass."
+type MasterpassConfiguration {
+  "The Masterpass merchant checkout id used to identify the merchant in Masterpass requests."
+  merchantCheckoutId: String
+
+  "A list of card brands supported for Masterpass by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+}
+
+"Configuration for PayPal."
+type PayPalConfiguration {
+  ":nodoc:"
+  displayName: String
+
+  ":nodoc:"
+  clientId: String
+
+  ":nodoc:"
+  privacyUrl: String
+
+  ":nodoc:"
+  userAgreementUrl: String
+
+  ":nodoc:"
+  assetsUrl: String
+
+  ":nodoc:"
+  environment: PayPalEnvironment
+
+  ":nodoc:"
+  environmentNoNetwork: Boolean
+
+  ":nodoc:"
+  unvettedMerchant: Boolean
+
+  ":nodoc:"
+  braintreeClientId: String
+
+  ":nodoc:"
+  billingAgreementsEnabled: Boolean
+
+  ":nodoc:"
+  merchantAccountId: String
+
+  ":nodoc:"
+  currencyCode: CurrencyCodeAlpha
+
+  ":nodoc:"
+  payeeEmail: String
+
+  "For internal use only."
+  directBaseUrl: String @deprecated(reason: "This field is only included for internal testing purposes.")
+}
+
+"Configuration for Samsung Pay on Android."
+type SamsungPayConfiguration {
+  "A string used to identify the merchant to the end user."
+  displayName: String
+
+  "The Samsung Pay environment."
+  environment: SamsungPayEnvironment
+
+  "The Samsung Pay service id."
+  serviceId: String
+
+  "Authorization to use when tokenizing Samsung Pay."
+  samsungAuthorization: String
+
+  "A list of card brands supported for Samsung Pay by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+}
+
+"Configuration for UnionPay cards."
+type UnionPayConfiguration {
+  "The Braintree merchant account ID with UnionPay processing enabled."
+  merchantAccountId: String
+}
+
+"Configuration for US bank account processing."
+type USBankAccountConfiguration {
+  ":nodoc:"
+  routeId: String
+
+  ":nodoc:"
+  plaidPublicKey: String
+}
+
+"Configuration for Pay with Venmo."
+type VenmoConfiguration {
+  ":nodoc:"
+  merchantId: String
+
+  ":nodoc:"
+  accessToken: String
+
+  ":nodoc:"
+  environment: VenmoEnvironment
+}
+
+"Configuration for Visa Checkout."
+type VisaCheckoutConfiguration {
+  ":nodoc:"
+  apiKey: String
+
+  ":nodoc:"
+  externalClientId: String
+
+  "A list of card brands supported for Visa Checkout by the current merchant."
+  supportedCardBrands: [CreditCardBrandCode]
+}
+
+"Top-level fields returned from a tokenized cvv."
+type TokenizeCvvPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "A one-time-use reference to tokenized sensitive information."
+  singleUseToken: SingleUseToken
+}
+
+"Top-level fields returned from a tokenized credit card."
+type TokenizeCreditCardPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "A one-time-use reference to tokenized sensitive information."
+  token: String @deprecated(reason: "Use `singleUseToken.id` instead.")
+
+  "A one-time-use reference to tokenized sensitive information."
+  singleUseToken: SingleUseToken
+
+  "Details about the tokenized CreditCard."
+  creditCard: CreditCardDetails @deprecated(reason: "Use `singleUseToken.details` instead")
+}
+
+"Top-level fields returned from a tokenized Samsung Pay Card."
+type TokenizeSamsungPayCardPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "A one-time-use reference to tokenized sensitive information."
+  singleUseToken: SingleUseToken
+}
+
+":nodoc:"
+type CreditCardDetails {
+  "A static code identifying the card brand."
+  brandCode: CreditCardBrandCode
+
+  "The display name of the card brand, ex: Visa, American Express."
+  brand: String
+
+  "The last four digits of the credit card number."
+  last4: String
+
+  ":nodoc:"
+  bin: String
+
+  "Information about the credit card based on its BIN."
+  binData: BinRecord
+
+  "The month of the expiration date."
+  expirationMonth: String
+
+  "The year of the expiration date."
+  expirationYear: String
+
+  "A URL to an image logo representing the card brand."
+  imageUrl: String
+
+  "The cardholder's name."
+  cardholderName: String
+
+  """
+  An identifier that uniquely represents any credit card number, for cards
+  stored in a merchant's vault. If the same credit card is added to a
+  merchant's vault multiple times, each will have the same identifier.
+  """
+  uniqueNumberIdentifier: String
+}
+
+":nodoc:"
+type SamsungPayCardDetails {
+  "The display name of the card brand, ex: Visa, American Express."
+  brand: String
+
+  "A static code identifying the card brand of the FPAN."
+  brandCode: CreditCardBrandCode
+
+  ":nodoc:"
+  bin: String
+
+  "Information about the credit card based on its bin."
+  binData: BinRecord
+
+  "Last four digits of the FPAN (the customer's actual backing card)."
+  sourceCardLast4: CreditCardLast4
+}
+
+":nodoc:"
+type GooglePayCardDetails {
+  "A static code identifying the tokenized card brand."
+  brandCode: CreditCardBrandCode
+
+  "The last four digits of the credit card number."
+  last4: String
+
+  "The BIN of the virtual tokenized card."
+  bin: String
+
+  ":nodoc:"
+  binData: BinRecord
+
+  "The month of the expiration date."
+  expirationMonth: String
+
+  "The year of the expiration date."
+  expirationYear: String
+
+  "A URL to an image logo representing the card brand."
+  imageUrl: String
+
+  "A reference id to the Google transaction."
+  googleTransactionId: String
+
+  "The last 4 digits of the user's card."
+  sourceCardLast4: CreditCardLast4
+
+  "A static code identifying the user's card brand."
+  sourceCardBrandCode: CreditCardBrandCode
+}
+
+":nodoc:"
+type ApplePayCardDetails {
+  "A static code identifying the card brand."
+  brandCode: CreditCardBrandCode
+
+  "The last four digits of the credit card number."
+  last4: String
+
+  ":nodoc:"
+  bin: String
+
+  ":nodoc:"
+  binData: BinRecord
+
+  "The month of the expiration date."
+  expirationMonth: String
+
+  "The year of the expiration date."
+  expirationYear: String
+
+  "A URL to an image logo representing the card brand."
+  imageUrl: String
+
+  "The cardholder's name."
+  cardholderName: String
+
+  """
+  A description of the payment method intended for display to the user, typically
+  card type and last 4 digits of the physical card number stored by Wallet
+  (formerly Passbook). We receive this description alongside the DPAN when processing
+  an Apple Pay transaction.
+  """
+  paymentInstrumentName: String
+}
+
+":nodoc:"
+type MasterpassCardDetails {
+  "A static code identifying the card brand."
+  brandCode: CreditCardBrandCode
+
+  "The last four digits of the credit card number."
+  last4: String
+
+  "The BIN of the tokenized card."
+  bin: String
+
+  "Information about the credit card based on its bin."
+  binData: BinRecord
+
+  "The month of the expiration date."
+  expirationMonth: String
+
+  "The year of the expiration date."
+  expirationYear: String
+
+  "A URL to an image logo representing the card brand."
+  imageUrl: String
+
+  "The cardholder's name."
+  cardholderName: String
+}
+
+":nodoc:"
+type VisaCheckoutCardDetails {
+  "A static code identifying the card brand."
+  brandCode: CreditCardBrandCode
+
+  "The last four digits of the credit card number."
+  last4: String
+
+  "The BIN of the tokenized card."
+  bin: String
+
+  ":nodoc:"
+  binData: BinRecord
+
+  "The month of the expiration date."
+  expirationMonth: String
+
+  "The year of the expiration date."
+  expirationYear: String
+
+  "A URL to an image logo representing the card brand."
+  imageUrl: String
+
+  "The Visa assigned identifier of the transaction."
+  callId: String
+
+  "The cardholder's name."
+  cardholderName: String
+}
+
+":nodoc:"
+type PayPalDetails {
+  ":nodoc:"
+  authorizationId: String
+
+  ":nodoc:"
+  captureId: String
+
+  ":nodoc:"
+  customField: String #pairs? docs are confusing
+
+  ":nodoc:"
+  imageUrl: String
+
+  ":nodoc:"
+  payer: PayPalPayerDetails
+
+  ":nodoc:"
+  paymentId: String
+
+  ":nodoc:"
+  refundId: String
+
+  ":nodoc:"
+  sellerProtectionStatus: String
+
+  ":nodoc:"
+  taxId: String
+
+  ":nodoc:"
+  taxIdType: String
+
+  ":nodoc:"
+  transactionFeeAmount: String
+
+  ":nodoc:"
+  transactionFeeCurrencyIsoCode: String
+}
+
+":nodoc:"
+type PayPalPayerDetails {
+  ":nodoc:"
+  id: ID
+
+  ":nodoc:"
+  email: String
+
+  ":nodoc:"
+  firstName: String
+
+  ":nodoc:"
+  lastName: String
+
+  ":nodoc:"
+  status: String
+}
+
+":nodoc:"
+type VenmoAccountDetails {
+  "A URL to an image logo representing the payment method."
+  imageUrl: String
+
+  ":nodoc:"
+  username: String
+
+  ":nodoc:"
+  venmoUserId: String
+}
+
+"A one-time-use reference to tokenized sensitive information."
+type SingleUseToken {
+  "The ID of the tokenized information."
+  id: ID!
+
+  "Details about the tokenized object."
+  details: PaymentMethodDetails
+}
+
+"Information about the credit card based on its BIN."
+type BinRecord {
+  ":nodoc:"
+  prepaid: BinRecordValue
+
+  ":nodoc:"
+  healthcare: BinRecordValue
+
+  ":nodoc:"
+  debit: BinRecordValue
+
+  ":nodoc:"
+  durbinRegulated: BinRecordValue
+
+  ":nodoc:"
+  commercial: BinRecordValue
+
+  ":nodoc:"
+  payroll: BinRecordValue
+
+  "The name of the bank that issued the card."
+  issuingBank: String
+
+  """
+  The country code for the country that issued the card in ISO 3166-1 alpha-3
+  format.
+  """
+  countryOfIssuance: CountryCodeAlpha3
+
+  ":nodoc:"
+  productId: String
+}
+
+"Top-level field representing a credit card."
+type CreditCard implements PaymentMethod {
+  "Unique identifier for the credit card."
+  id: ID!
+
+  "Payout capabilities for this credit card."
+  payoutCapabilities: PayoutCapabilities
+}
+
+"Payout capabilities for a payment method."
+type PayoutCapabilities {
+  "Whether payment method can receive payouts."
+  canReceivePayouts: Boolean
+
+  "Whether payment method can receive gambling payouts."
+  canReceiveGamblingPayouts: Boolean
+
+  "Speed for domestic payouts."
+  domesticSpeed: PayoutSpeed
+
+  "Speed for international payouts."
+  internationalSpeed: PayoutSpeed
+}
+
+"Top level output field from deleting a payment method referenced by a single use token."
+type DeletePaymentMethodFromSingleUseTokenPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+}
+
+"Top level output field from creating a transaction."
+type CreateTransactionPayload {
+  "An identifier used to reconcile requests and responses."
+  clientMutationId: String
+
+  "Output fields for a transaction object."
+  transaction: Transaction
+}
+
+":nodoc:"
+type Transaction {
+  "Unique identifier of the transaction."
+  id: ID!
+
+  "Details about the payment method object used to create the transaction."
+  paymentMethodDetails: PaymentMethodDetails
+
+  "The amount charged in this transaction."
+  amount: Amount
+
+  "Collection of custom fields specified by the merchant."
+  customFields: [CustomField!]
+
+  "The reason the transaction was gateway rejected, if that is its status."
+  gatewayRejectionReason: GatewayRejectionReason
+
+  "The ID of the merchant account that processed this transaction."
+  merchantAccountId: ID
+
+  """
+  The order ID for this transaction. For PayPal transactions, the PayPal
+  Invoice ID.
+  """
+  orderId: String
+
+  "Advanced risk data on this transaction."
+  riskData: RiskData
+
+  "The current status of this transaction."
+  status: TransactionStatus
+
+  "The records of all statuses this transaction has passed through."
+  statusHistory: [TransactionHistoryEvent!]
+
+  "Fields describing the payment processor response."
+  processorResponse: TransactionProcessorResponse
+
+  "The ISO code for the currency for this transaction."
+  currencyIsoCode: String
+}
+
+":nodoc:"
+type TransactionProcessorResponse {
+  """
+  The processor response code indicating the result of attempting to process
+  this transaction.
+  """
+  legacyCode: String
+
+  "The text explanation of the processor response code."
+  message: String
+
+  "The processing bank's response to the provided CVV."
+  cvvResponseCode: AvsCvvResponseCode
+
+  "The processing bank's response to the provided billing postal or zip code."
+  avsPostalCodeResponseCode: AvsCvvResponseCode
+
+  "The processing bank's response to the provided billing street address."
+  avsStreetAddressResponseCode: AvsCvvResponseCode
+}
+
+"A status event in the lifecycle of a transation."
+type TransactionHistoryEvent {
+  "The new status of the transaction."
+  status: TransactionStatus
+
+  "The date and time at which the status event occurred."
+  timestamp: Timestamp
+
+  "The amount of the transaction for this status event."
+  amount: Amount
+
+  "The source for the transaction change to the new status."
+  source: TransactionSource
+}
+
+":nodoc:"
+type RiskData {
+  "An ID for the set of risk data."
+  id: ID
+
+  "The risk decision on whether the transaction should be permitted."
+  decision: RiskDecision
+
+  """
+  Whether data associated with the user's device was captured and used in the decision process.
+  """
+  deviceDataCaptured: Boolean
+}
+
+"A user-defined custom field to store additional information."
+type CustomField {
+  "The name of the custom field."
+  name: String
+
+  "The value for the custom field."
+  value: String
+}
