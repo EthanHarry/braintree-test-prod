@@ -1,6 +1,6 @@
 "Configuration for BANK PaymentMethod ."
 type BankConfiguration {
-  "Whether or not to display a PayPal branded experience on the client for the payment method."
+  "Whether or not to display a PayPal branded experience on the client for the payment method!"
   isPayPalBranded: Boolean
 }
 
